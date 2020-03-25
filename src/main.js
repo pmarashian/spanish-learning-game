@@ -15,6 +15,15 @@ gameScene.init = function () {
       y: 250,
       scale: 1,
     },
+    {
+      key: "car",
+      image: "assets/images/car.png",
+      audio: "assets/audio/auto.mp3",
+      word: "auto",
+      x: 250,
+      y: 300,
+      scale: 1,
+    },
   ];
 };
 
@@ -44,42 +53,31 @@ gameScene.create = function () {
       .setScale(item.scale)
       .setInteractive();
 
-    sprite.hoverTween = this.add.tween({
+    sprite.hoverOutTween = this.tweens.add({
+      targets: sprite,
+      duration: 100,
+      paused: true,
+      alpha: 1,
+      scaleX: item.scale,
+      scaleY: item.scale,
+    });
+
+    sprite.hoverTween = this.tweens.add({
       targets: sprite,
       duration: 300,
       alpha: 0.7,
+      scaleX: item.scale * 1.15,
+      scaleY: item.scale * 1.15,
       paused: true,
-      onComplete: function () {
-        console.log("SPRITE", sprite);
-      },
-      onStart: function () {
-        console.log("onStart", sprite);
-      },
-    });
-
-    sprite.hoverOutTween = this.add.tween({
-      targets: sprite,
-      duration: 300,
-      paused: true,
-      alpha: 1,
-      onComplete: function () {
-        sprite.alpha = 1;
-        console.log("SPRITE", sprite);
-      },
-      onStart: function () {
-        console.log("onStart", sprite);
-      },
     });
 
     sprite.on("pointerover", function () {
-      console.log("pointer over");
-      sprite.hoverOutTween.stop();
+      !sprite.hoverOutTween.paused && sprite.hoverOutTween.stop();
       sprite.hoverTween.play();
     });
 
     sprite.on("pointerout", function () {
-      console.log("pointer out");
-      sprite.hoverTween.stop();
+      !sprite.hoverTween.paused && sprite.hoverTween.stop();
       sprite.hoverOutTween.play();
     });
 
