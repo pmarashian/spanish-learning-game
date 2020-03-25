@@ -3,3 +3,5 @@ dist/
 .vscode/
 *.log
 .idea
+.DS_Store
+package-lock.json
