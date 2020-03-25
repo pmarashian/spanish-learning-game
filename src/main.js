@@ -24,7 +24,29 @@ gameScene.init = function () {
       y: 300,
       scale: 1,
     },
+    {
+      key: "tree",
+      image: "assets/images/tree.png",
+      audio: "assets/audio/arbol.mp3",
+      word: "arbol",
+      x: 400,
+      y: 250,
+      scale: 0.75,
+    },
+    {
+      key: "house",
+      image: "assets/images/house.png",
+      audio: "assets/audio/casa.mp3",
+      word: "casa",
+      x: 550,
+      y: 270,
+      scale: 0.75,
+    },
   ];
+
+  this.sounds = {};
+
+  this.currentQuestion = {};
 };
 
 gameScene.preload = function () {
@@ -35,10 +57,20 @@ gameScene.preload = function () {
     this.load.image(item.key, item.image);
     this.load.audio(`${item.key}Audio`, item.audio);
   }
+
+  this.load.audio(`correctAudio`, "assets/audio/correct.mp3");
+  this.load.audio(`wrongAudio`, "assets/audio/wrong.mp3");
 };
 
 gameScene.create = function () {
   this.add.sprite(0, 0, "background").setOrigin(0, 0).setDepth(-10);
+  this.text = this.add.text(10, 10, " ", {
+    font: "24px Open Sans",
+    color: "#ffffff",
+  });
+
+  this.correctAudio = this.sound.add("correctAudio");
+  this.wrongAudio = this.sound.add("wrongAudio");
 
   this.items = this.add.group();
   for (let i = 0; i < this.data.length; i++) {
@@ -52,6 +84,10 @@ gameScene.create = function () {
     )
       .setScale(item.scale)
       .setInteractive();
+
+    sprite.itemData = { ...item };
+
+    this.sounds[item.key] = this.sound.add(`${item.key}Audio`);
 
     sprite.hoverOutTween = this.tweens.add({
       targets: sprite,
@@ -81,10 +117,36 @@ gameScene.create = function () {
       sprite.hoverOutTween.play();
     });
 
-    sprite.on("pointerdown", function () {});
+    sprite.on(
+      "pointerdown",
+      function () {
+        if (this.checkAnswer(item)) {
+          this.correctAudio.play();
+          this.displayNextQuestion();
+        } else {
+          this.wrongAudio.play();
+        }
+      },
+      this
+    );
 
     this.items.add(sprite, true);
   }
+
+  this.displayNextQuestion();
+};
+
+gameScene.checkAnswer = function (answer) {
+  return answer.key === this.currentQuestion.key;
+};
+
+gameScene.displayNextQuestion = function () {
+  const { itemData } = Phaser.Math.RND.pick(this.items.getChildren());
+
+  this.text.setText(itemData.word);
+  this.sounds[itemData.key].play();
+
+  this.currentQuestion = { ...itemData };
 };
 
 gameScene.update = function () {};
